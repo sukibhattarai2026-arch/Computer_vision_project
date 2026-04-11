@@ -219,6 +219,7 @@ def align_images(src: np.ndarray, ref: np.ndarray, debug_path: str | None = None
     return out
 
 
+
 # ---------------------------------------------------------------------
 # Signal extraction and issue analysis
 # ---------------------------------------------------------------------

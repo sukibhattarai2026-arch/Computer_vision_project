@@ -17,35 +17,24 @@
     --dark-paper: #2a2218;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--cream);
-    color: var(--ink);
-    font-family: 'Courier Prime', monospace;
-    min-height: 100vh;
-  }
+  body { background: var(--cream); color: var(--ink); font-family: 'Courier Prime', monospace; min-height: 100vh; }
+
   header {
     border-bottom: 3px double var(--ink);
     padding: 1.5rem 2.5rem;
-    display: flex;
-    align-items: flex-end;
-    gap: 1.5rem;
+    display: flex; align-items: flex-end; gap: 1.5rem;
   }
   .logo-mark {
-    width: 50px; height: 50px;
-    border: 3px solid var(--ink);
+    width: 50px; height: 50px; border: 3px solid var(--ink);
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Playfair Display', serif;
-    font-size: 1.8rem; font-weight: 900; color: var(--rust);
+    font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 900; color: var(--rust);
     flex-shrink: 0;
   }
-  .header-text h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2rem; font-weight: 900; line-height: 1;
-  }
-  .header-text p { color: var(--faded); font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; margin-top: 0.3rem; }
-  main { max-width: 1000px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+  .header-text h1 { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; line-height: 1; }
+  .header-text p  { color: var(--faded); font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; margin-top: 0.3rem; }
+  main { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem; }
 
-  /* Upload */
+  /* Upload cards */
   .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
   .upload-card { background: var(--paper); border: 2px solid var(--ink); }
   .card-header {
@@ -57,13 +46,38 @@
     align-items: center; justify-content: center;
     cursor: pointer; padding: 1.5rem; position: relative; transition: background 0.2s;
   }
-  .drop-zone:hover { background: #e4ddd0; }
+  .drop-zone:hover   { background: #e4ddd0; }
   .drop-zone.dragover { background: #d8d0c0; }
   .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-  .drop-icon { font-size: 2.5rem; color: var(--faded); margin-bottom: 0.6rem; }
-  .drop-text { font-size: 0.75rem; color: var(--sepia); text-align: center; }
+  .drop-icon  { font-size: 2.5rem; color: var(--faded); margin-bottom: 0.6rem; }
+  .drop-text  { font-size: 0.75rem; color: var(--sepia); text-align: center; }
   .drop-text strong { display: block; font-size: 0.85rem; color: var(--ink); margin-bottom: 0.2rem; }
   .preview-img { width: 100%; height: 200px; object-fit: contain; display: none; background: #1a1208; padding: 0.4rem; }
+
+  /* Mode toggle */
+  .card-header-col  { background: var(--ink); color: var(--cream); }
+  .card-header-title { padding: 0.5rem 1rem; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; }
+  .mode-toggle { display: flex; border-top: 1px solid rgba(255,255,255,0.12); }
+  .mode-btn {
+    flex: 1; padding: 0.5rem 0.4rem; background: transparent; border: none;
+    font-family: 'Courier Prime', monospace; font-size: 0.6rem; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--faded); cursor: pointer; transition: all 0.2s;
+    border-right: 1px solid rgba(255,255,255,0.1);
+  }
+  .mode-btn:last-child { border-right: none; }
+  .mode-btn.active { background: var(--rust); color: var(--cream); }
+  .mode-btn:hover:not(.active) { background: rgba(255,255,255,0.08); color: var(--cream); }
+  #panel-upload { display: block; }
+  #panel-synth  { display: none; padding: 1.1rem 1.2rem 0.8rem; }
+
+  /* Synth controls */
+  .synth-sliders { display: flex; flex-direction: column; gap: 0.85rem; }
+  .synth-row { display: flex; align-items: center; gap: 0.7rem; }
+  .synth-row label { font-size: 0.62rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--sepia); width: 68px; flex-shrink: 0; }
+  .synth-row input[type="range"] { -webkit-appearance: none; flex: 1; height: 2px; background: var(--faded); outline: none; }
+  .synth-row input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 13px; height: 13px; background: var(--rust); border: 2px solid var(--ink); cursor: pointer; }
+  .synth-row input[type="number"] { width: 52px; background: var(--dark-paper); border: 1px solid var(--faded); color: var(--cream); font-family: 'Courier Prime', monospace; font-size: 0.85rem; padding: 0.2rem 0.4rem; text-align: center; }
+  .synth-val { font-size: 1rem; font-weight: 700; color: var(--rust); width: 3.5ch; text-align: right; flex-shrink: 0; }
 
   /* Settings */
   .settings-box {
@@ -77,29 +91,17 @@
   input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 13px; height: 13px; background: var(--rust); border: 2px solid var(--ink); cursor: pointer; }
   .range-val { font-size: 1.1rem; font-weight: 700; color: var(--rust); width: 2ch; }
 
-  /* Method toggles */
-  .methods-box {
-    background: var(--paper); border: 2px solid var(--ink);
-    padding: 1.2rem 1.5rem; margin-bottom: 1.5rem;
-  }
-  .methods-label {
-    font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--sepia); margin-bottom: 0.9rem;
-  }
+  /* Methods */
+  .methods-box { background: var(--paper); border: 2px solid var(--ink); padding: 1.2rem 1.5rem; margin-bottom: 1.5rem; }
+  .methods-label { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sepia); margin-bottom: 0.9rem; }
   .method-buttons { display: flex; flex-wrap: wrap; gap: 0.6rem; }
   .method-btn {
-    padding: 0.55rem 1.2rem;
-    border: 2px solid var(--ink);
-    background: transparent;
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
-    cursor: pointer; transition: all 0.15s; color: var(--ink);
+    padding: 0.55rem 1.2rem; border: 2px solid var(--ink); background: transparent;
+    font-family: 'Courier Prime', monospace; font-size: 0.75rem; letter-spacing: 0.12em;
+    text-transform: uppercase; cursor: pointer; transition: all 0.15s; color: var(--ink);
     display: flex; align-items: center; gap: 0.4rem;
   }
-  .method-btn .dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--faded); transition: background 0.15s; flex-shrink: 0;
-  }
+  .method-btn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--faded); transition: background 0.15s; flex-shrink: 0; }
   .method-btn.selected { background: var(--ink); color: var(--cream); }
   .method-btn.selected .dot { background: var(--gold); }
   .method-btn:hover:not(.selected) { background: #e0d8c8; }
@@ -109,56 +111,94 @@
   .btn-process {
     background: var(--ink); color: var(--cream);
     border: 2px solid var(--ink); padding: 0.9rem 3rem;
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.78rem; letter-spacing: 0.25em; text-transform: uppercase;
+    font-family: 'Courier Prime', monospace; font-size: 0.78rem;
+    letter-spacing: 0.25em; text-transform: uppercase;
     cursor: pointer; transition: all 0.15s;
+    position: relative; overflow: hidden;
   }
-  .btn-process:hover { background: var(--rust); border-color: var(--rust); }
+  .btn-process:hover    { background: var(--rust); border-color: var(--rust); }
   .btn-process:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-process .ripple {
+    position: absolute; border-radius: 50%;
+    background: rgba(212,160,23,0.5);
+    transform: scale(0); animation: ripple-anim 0.6s linear;
+    pointer-events: none;
+  }
+  @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
 
   /* Progress */
   #progress-section { display: none; margin-bottom: 2rem; }
-  .progress-card {
-    background: var(--dark-paper); border: 2px solid var(--ink);
-    padding: 2rem; color: var(--cream); text-align: center;
-  }
-  .progress-label { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
+  .progress-card { background: var(--dark-paper); border: 2px solid var(--ink); padding: 2rem; color: var(--cream); text-align: center; }
+  .progress-label   { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
   .progress-message { font-size: 0.85rem; color: var(--faded); margin-bottom: 1rem; }
   .progress-bar-track { width: 100%; height: 3px; background: #3a3228; overflow: hidden; }
-  .progress-bar-fill { height: 100%; background: var(--gold); width: 5%; transition: width 0.6s; animation: pulse 1.4s ease-in-out infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .progress-bar-fill  { height: 100%; background: var(--gold); width: 5%; transition: width 0.6s; animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* Panel III — Processing Stages */
+  #stages-section { display: none; margin-bottom: 2rem; }
+  .stages-header {
+    background: var(--ink); color: var(--cream); border: 2px solid var(--ink); border-bottom: none;
+    padding: 0.55rem 1rem; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase;
+    display: flex; align-items: center; gap: 0.7rem;
+  }
+  .live-badge {
+    background: var(--rust); color: var(--cream);
+    font-size: 0.58rem; padding: 0.1rem 0.5rem; letter-spacing: 0.05em; border-radius: 1px;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  .stages-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border: 2px solid var(--ink); border-top: none;
+  }
+  .stage-cell { background: var(--paper); border-right: 2px solid var(--ink); display: flex; flex-direction: column; }
+  .stage-cell:last-child { border-right: none; }
+  .stage-label {
+    background: var(--dark-paper); color: var(--gold);
+    font-size: 0.6rem; letter-spacing: 0.17em; text-transform: uppercase;
+    padding: 0.38rem 0.75rem; border-bottom: 1px solid #3a3228;
+    display: flex; flex-direction: column; gap: 0.1rem;
+  }
+  .stage-sublabel { color: var(--faded); font-size: 0.52rem; letter-spacing: 0.08em; }
+  .stage-img-wrap {
+    flex: 1; min-height: 185px; background: #0f0d09;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .stage-img-wrap img { width: 100%; height: 185px; object-fit: contain; display: none; }
+  .stage-img-wrap img.loaded { display: block; }
+  .stage-spinner {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 0.62rem; color: var(--faded); letter-spacing: 0.12em; text-transform: uppercase;
+    animation: pulse 1.3s ease-in-out infinite;
+  }
+  .stage-spinner.hidden { display: none; }
 
   /* Results */
   #result-section { display: none; }
-  .result-tabs { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 2px solid var(--ink); margin-bottom: 0; }
+  .result-tabs { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 2px solid var(--ink); }
   .tab-btn {
-    padding: 0.6rem 1.3rem;
-    border: 2px solid var(--ink); border-bottom: none;
-    background: var(--paper);
-    font-family: 'Courier Prime', monospace;
+    padding: 0.6rem 1.3rem; border: 2px solid var(--ink); border-bottom: none;
+    background: var(--paper); font-family: 'Courier Prime', monospace;
     font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
     cursor: pointer; color: var(--sepia); margin-right: -2px; transition: all 0.15s;
   }
   .tab-btn.active { background: var(--ink); color: var(--cream); }
   .tab-btn:hover:not(.active) { background: #e0d8c8; }
-
   .video-panel { background: #0f0d09; border: 2px solid var(--ink); border-top: none; padding: 1.5rem; text-align: center; }
   video { max-width: 100%; max-height: 500px; display: block; margin: 0 auto; background: #000; }
   .video-caption { margin-top: 0.8rem; font-size: 0.68rem; color: var(--faded); letter-spacing: 0.12em; text-transform: uppercase; }
   .download-btn {
-    display: inline-block; margin-top: 1rem;
-    padding: 0.5rem 1.8rem; background: transparent;
-    border: 1px solid var(--faded); color: var(--faded);
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
-    text-decoration: none; cursor: pointer; transition: all 0.15s;
+    display: inline-block; margin-top: 1rem; padding: 0.5rem 1.8rem;
+    background: transparent; border: 1px solid var(--faded); color: var(--faded);
+    font-family: 'Courier Prime', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase; text-decoration: none; cursor: pointer; transition: all 0.15s;
   }
   .download-btn:hover { border-color: var(--gold); color: var(--gold); }
 
   .error-msg {
-    background: #3a1010; border: 2px solid var(--rust);
-    color: #ffb0a0; padding: 1rem 1.5rem;
-    font-size: 0.82rem; display: none; margin-bottom: 1.5rem;
+    background: #3a1010; border: 2px solid var(--rust); color: #ffb0a0;
+    padding: 1rem 1.5rem; font-size: 0.82rem; display: none; margin-bottom: 1.5rem;
     white-space: pre-wrap; word-break: break-word;
   }
 
@@ -168,8 +208,10 @@
     font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--faded);
   }
 
-  @media (max-width: 600px) {
-    .upload-grid { grid-template-columns: 1fr; }
+  @media (max-width: 680px) {
+    .upload-grid  { grid-template-columns: 1fr; }
+    .stages-grid  { grid-template-columns: 1fr; }
+    .stage-cell   { border-right: none; border-bottom: 2px solid var(--ink); }
   }
 </style>
 </head>
@@ -178,37 +220,78 @@
 <header>
   <div class="logo-mark">R</div>
   <div class="header-text">
-    <h1>Restoration Lab</h1>
-    <p>Adaptive Artwork Damage Analysis &amp; Interpolation</p>
+    <h1>Art Work Monitoring</h1>
+
   </div>
 </header>
 
 <main>
   <form id="upload-form">
 
-    <!-- Images -->
+    <!-- Panels I + II -->
     <div class="upload-grid">
+
+      <!-- I: Original -->
       <div class="upload-card">
         <div class="card-header">I — Original Artwork</div>
         <div class="drop-zone" id="dz-original">
-          <input type="file" name="original" id="inp-original" accept="image/*" required>
+          <input type="file" id="inp-original" accept="image/*" required>
           <div class="drop-icon">🖼</div>
           <div class="drop-text"><strong>Original / Reference</strong>Click or drop image here</div>
           <img class="preview-img" id="prev-original" alt="">
         </div>
       </div>
+
+      <!-- II: Damaged (with mode toggle) -->
       <div class="upload-card">
-        <div class="card-header">II — Damaged Artwork</div>
-        <div class="drop-zone" id="dz-damaged">
-          <input type="file" name="damaged" id="inp-damaged" accept="image/*" required>
-          <div class="drop-icon">🏚</div>
-          <div class="drop-text"><strong>Damaged / Degraded</strong>Click or drop image here</div>
-          <img class="preview-img" id="prev-damaged" alt="">
+        <div class="card-header-col">
+          <div class="card-header-title">II — Damaged Artwork</div>
+          <div class="mode-toggle">
+            <button type="button" class="mode-btn active" id="btn-mode-upload" onclick="setMode('upload')">↑ Upload Image</button>
+            <button type="button" class="mode-btn"        id="btn-mode-synth"  onclick="setMode('synth')">⚗ Generate Synthetic</button>
+          </div>
+        </div>
+
+        <div id="panel-upload">
+          <div class="drop-zone" id="dz-damaged">
+            <input type="file" id="inp-damaged" accept="image/*">
+            <div class="drop-icon">🏚</div>
+            <div class="drop-text"><strong>Damaged / Degraded</strong>Click or drop image here</div>
+            <img class="preview-img" id="prev-damaged" alt="">
+          </div>
+        </div>
+
+        <div id="panel-synth">
+          <div class="synth-sliders">
+            <div class="synth-row">
+              <label>Varnish</label>
+              <input type="range" id="sl-varnish" min="0" max="1" step="0.05" value="0.3"
+                     oninput="document.getElementById('v-varnish').textContent=parseFloat(this.value).toFixed(2)">
+              <span class="synth-val" id="v-varnish">0.30</span>
+            </div>
+            <div class="synth-row">
+              <label>Lighting</label>
+              <input type="range" id="sl-lighting" min="0.1" max="1" step="0.05" value="0.6"
+                     oninput="document.getElementById('v-lighting').textContent=parseFloat(this.value).toFixed(2)">
+              <span class="synth-val" id="v-lighting">0.60</span>
+            </div>
+            <div class="synth-row">
+              <label>Tilt</label>
+              <input type="range" id="sl-tilt" min="0" max="0.3" step="0.01" value="0.12"
+                     oninput="document.getElementById('v-tilt').textContent=parseFloat(this.value).toFixed(2)">
+              <span class="synth-val" id="v-tilt">0.12</span>
+            </div>
+            <div class="synth-row">
+              <label>Cracks</label>
+              <input type="number" id="sl-cracks" min="1" max="30" value="5">
+              <span style="font-size:0.6rem;color:var(--faded);">crack lines</span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </div><!-- /upload-grid -->
 
-    <!-- Frames setting -->
+    <!-- Settings -->
     <div class="settings-box">
       <div class="setting-group">
         <label>Transition Frames</label>
@@ -218,25 +301,15 @@
       <div style="font-size:0.68rem;color:var(--faded);letter-spacing:0.08em;">More frames = smoother video, longer processing</div>
     </div>
 
-    <!-- Method selection -->
+    <!-- Methods -->
     <div class="methods-box">
       <div class="methods-label">Select interpolation methods to generate</div>
       <div class="method-buttons">
-        <button type="button" class="method-btn selected" data-method="adaptive">
-          <span class="dot"></span> Adaptive (full pipeline)
-        </button>
-        <button type="button" class="method-btn" data-method="linear">
-          <span class="dot"></span> Linear Blend
-        </button>
-        <button type="button" class="method-btn" data-method="optical_flow">
-          <span class="dot"></span> Optical Flow
-        </button>
-        <button type="button" class="method-btn" data-method="laplacian">
-          <span class="dot"></span> Laplacian Pyramid
-        </button>
-        <button type="button" class="method-btn" data-method="inpainting">
-          <span class="dot"></span> Inpainting
-        </button>
+        <button type="button" class="method-btn selected" data-method="adaptive"><span class="dot"></span> Adaptive (full pipeline)</button>
+        <button type="button" class="method-btn" data-method="linear"><span class="dot"></span> Linear Blend</button>
+        <button type="button" class="method-btn" data-method="optical_flow"><span class="dot"></span> Optical Flow</button>
+        <button type="button" class="method-btn" data-method="laplacian"><span class="dot"></span> Laplacian Pyramid</button>
+        <button type="button" class="method-btn" data-method="inpainting"><span class="dot"></span> Inpainting</button>
       </div>
     </div>
 
@@ -256,7 +329,51 @@
     </div>
   </div>
 
-  <!-- Results with tabs per method -->
+  <!-- Panel III: Processing Stages (appears as soon as job starts) -->
+  <div id="stages-section">
+    <div class="stages-header">
+      III — Processing Stages
+      <span class="live-badge" id="live-badge">● LIVE</span>
+    </div>
+    <div class="stages-grid">
+
+      <div class="stage-cell">
+        <div class="stage-label">
+          A — Raw Input
+          <span class="stage-sublabel">Before any processing</span>
+        </div>
+        <div class="stage-img-wrap">
+          <img id="img-a" alt="Stage A — Raw">
+          <div class="stage-spinner" id="spin-a">Waiting…</div>
+        </div>
+      </div>
+
+      <div class="stage-cell">
+        <div class="stage-label">
+          B — After Alignment
+          <span class="stage-sublabel">Geometric correction via SIFT</span>
+        </div>
+        <div class="stage-img-wrap">
+          <img id="img-b" alt="Stage B — Aligned">
+          <div class="stage-spinner" id="spin-b">Waiting…</div>
+        </div>
+      </div>
+
+      <div class="stage-cell">
+        <div class="stage-label">
+          C — Intensity Normalised
+          <span class="stage-sublabel">Histogram matched to original</span>
+        </div>
+        <div class="stage-img-wrap">
+          <img id="img-c" alt="Stage C — Normalised">
+          <div class="stage-spinner" id="spin-c">Waiting…</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Results -->
   <div id="result-section">
     <div class="result-tabs" id="result-tabs"></div>
     <div class="video-panel">
@@ -267,20 +384,13 @@
   </div>
 </main>
 
-<footer>
-  <span>Restoration Lab</span>
-  <span>Per-pixel adaptive damage interpolation</span>
-</footer>
 
 <script>
+// ── Constants ────────────────────────────────────────────────────────────────
 const METHOD_LABELS = {
-  adaptive:     'Adaptive',
-  linear:       'Linear Blend',
-  optical_flow: 'Optical Flow',
-  laplacian:    'Laplacian',
-  inpainting:   'Inpainting'
+  adaptive:'Adaptive', linear:'Linear Blend',
+  optical_flow:'Optical Flow', laplacian:'Laplacian', inpainting:'Inpainting'
 };
-
 const METHOD_DESC = {
   adaptive:     'Per-pixel routing: linear · flow · laplacian · inpainting combined',
   linear:       'Simple alpha blending across all pixels',
@@ -288,165 +398,287 @@ const METHOD_DESC = {
   laplacian:    'Frequency-band blending via Laplacian pyramid',
   inpainting:   'Progressive missing-region inpainting with substrate blending'
 };
+const STEPS = [
+  { msg:'Loading images…',               pct:8  },
+  { msg:'Generating synthetic damage…',  pct:18 },
+  { msg:'Aligning images…',              pct:34 },
+  { msg:'Normalising intensities…',      pct:50 },
+  { msg:'Analysing damage signals…',     pct:64 },
+  { msg:'Generating transition frames…', pct:78 },
+  { msg:'Encoding videos…',              pct:90 },
+];
 
-// Image previews
+// ── Web Audio launch sound ────────────────────────────────────────────────────
+function playLaunchSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // Deep thump
+    const thump = ctx.createOscillator();
+    const tGain = ctx.createGain();
+    thump.connect(tGain); tGain.connect(ctx.destination);
+    thump.type = 'sine';
+    thump.frequency.setValueAtTime(200, ctx.currentTime);
+    thump.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.2);
+    tGain.gain.setValueAtTime(0.65, ctx.currentTime);
+    tGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+    thump.start(ctx.currentTime);
+    thump.stop(ctx.currentTime + 0.25);
+
+    // Noise crack/pop
+    const bufLen = Math.floor(ctx.sampleRate * 0.07);
+    const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+    const d   = buf.getChannelData(0);
+    for (let i = 0; i < bufLen; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i/bufLen, 2.5);
+    const nSrc  = ctx.createBufferSource();
+    const nGain = ctx.createGain();
+    nSrc.buffer = buf;
+    nGain.gain.setValueAtTime(0.4, ctx.currentTime + 0.05);
+    nGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    nSrc.connect(nGain); nGain.connect(ctx.destination);
+    nSrc.start(ctx.currentTime + 0.05);
+
+    // Rising whoosh
+    const whoosh  = ctx.createOscillator();
+    const wFilter = ctx.createBiquadFilter();
+    const wGain   = ctx.createGain();
+    wFilter.type = 'bandpass';
+    wFilter.frequency.setValueAtTime(350, ctx.currentTime + 0.08);
+    wFilter.frequency.exponentialRampToValueAtTime(3500, ctx.currentTime + 0.58);
+    whoosh.type = 'sawtooth';
+    whoosh.frequency.setValueAtTime(70, ctx.currentTime + 0.08);
+    whoosh.frequency.exponentialRampToValueAtTime(700, ctx.currentTime + 0.58);
+    wGain.gain.setValueAtTime(0.0, ctx.currentTime + 0.08);
+    wGain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.22);
+    wGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.62);
+    whoosh.connect(wFilter); wFilter.connect(wGain); wGain.connect(ctx.destination);
+    whoosh.start(ctx.currentTime + 0.08);
+    whoosh.stop(ctx.currentTime + 0.62);
+
+    // 4 mechanical ticks (film-reel feel)
+    for (let i = 0; i < 4; i++) {
+      const tk = ctx.createOscillator();
+      const tkg = ctx.createGain();
+      tk.connect(tkg); tkg.connect(ctx.destination);
+      tk.type = 'square'; tk.frequency.value = 850 + i * 160;
+      const t0 = ctx.currentTime + 0.3 + i * 0.06;
+      tkg.gain.setValueAtTime(0.09, t0);
+      tkg.gain.exponentialRampToValueAtTime(0.001, t0 + 0.04);
+      tk.start(t0); tk.stop(t0 + 0.05);
+    }
+  } catch(_) { /* silent fallback */ }
+}
+
+// ── Ripple effect ─────────────────────────────────────────────────────────────
+document.getElementById('submit-btn').addEventListener('mousedown', function(e) {
+  const rect = this.getBoundingClientRect();
+  const d    = Math.max(this.clientWidth, this.clientHeight);
+  const r    = document.createElement('span');
+  r.className = 'ripple';
+  r.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX-rect.left-d/2}px;top:${e.clientY-rect.top-d/2}px`;
+  this.appendChild(r);
+  setTimeout(() => r.remove(), 650);
+});
+
+// ── Mode toggle ───────────────────────────────────────────────────────────────
+let currentMode = 'upload';
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('panel-upload').style.display = mode === 'upload' ? 'block' : 'none';
+  document.getElementById('panel-synth').style.display  = mode === 'synth'  ? 'block' : 'none';
+  document.getElementById('btn-mode-upload').classList.toggle('active', mode === 'upload');
+  document.getElementById('btn-mode-synth').classList.toggle('active',  mode === 'synth');
+}
+
+// ── Image previews ────────────────────────────────────────────────────────────
 function setupPreview(inputId, previewId, dzId) {
-  const input = document.getElementById(inputId);
+  const input   = document.getElementById(inputId);
   const preview = document.getElementById(previewId);
-  const dz = document.getElementById(dzId);
-  const onChange = () => {
+  const dz      = document.getElementById(dzId);
+  const show = () => {
     if (!input.files[0]) return;
     preview.src = URL.createObjectURL(input.files[0]);
     preview.style.display = 'block';
     dz.querySelector('.drop-icon').style.display = 'none';
     dz.querySelector('.drop-text').style.display = 'none';
   };
-  input.addEventListener('change', onChange);
-  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+  input.addEventListener('change', show);
+  dz.addEventListener('dragover',  e  => { e.preventDefault(); dz.classList.add('dragover'); });
   dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
   dz.addEventListener('drop', e => {
     e.preventDefault(); dz.classList.remove('dragover');
-    if (e.dataTransfer.files.length) { input.files = e.dataTransfer.files; onChange(); }
+    if (e.dataTransfer.files.length) { input.files = e.dataTransfer.files; show(); }
   });
 }
 setupPreview('inp-original', 'prev-original', 'dz-original');
 setupPreview('inp-damaged',  'prev-damaged',  'dz-damaged');
 
-// Frames slider
-const framesRange = document.getElementById('frames-range');
-const framesVal   = document.getElementById('frames-val');
-framesRange.addEventListener('input', () => { framesVal.textContent = framesRange.value; });
-
-// Method toggle buttons
-document.querySelectorAll('.method-btn').forEach(btn => {
-  btn.addEventListener('click', () => btn.classList.toggle('selected'));
+// ── Frames slider ─────────────────────────────────────────────────────────────
+document.getElementById('frames-range').addEventListener('input', function() {
+  document.getElementById('frames-val').textContent = this.value;
 });
 
+// ── Method buttons ────────────────────────────────────────────────────────────
+document.querySelectorAll('.method-btn').forEach(btn =>
+  btn.addEventListener('click', () => btn.classList.toggle('selected'))
+);
 function getSelectedMethods() {
   return [...document.querySelectorAll('.method-btn.selected')].map(b => b.dataset.method);
 }
 
-// Progress steps (cycle through while waiting)
-const STEPS = [
-  { msg: 'Loading images…',                pct: 10 },
-  { msg: 'Aligning images…',               pct: 25 },
-  { msg: 'Analysing damage signals…',      pct: 40 },
-  { msg: 'Computing issue maps…',          pct: 55 },
-  { msg: 'Generating transition frames…',  pct: 70 },
-  { msg: 'Encoding videos…',               pct: 88 },
-];
-let stepIdx = 0, pollTimer = null, currentJobId = null;
-
-function showError(msg) {
-  const el = document.getElementById('error-msg');
-  el.textContent = '⚠ ' + msg;
-  el.style.display = 'block';
+// ── Stage image poller ────────────────────────────────────────────────────────
+function pollStage(jobId, stage) {
+  const img  = document.getElementById(`img-${stage}`);
+  const spin = document.getElementById(`spin-${stage}`);
+  spin.textContent = 'Processing…';
+  let tries = 0;
+  const iv = setInterval(async () => {
+    tries++;
+    if (tries > 100) { clearInterval(iv); spin.textContent = 'Unavailable'; return; }
+    try {
+      const r = await fetch(`/stage/${jobId}/${stage}`);
+      if (r.ok) {
+        clearInterval(iv);
+        const blob = await r.blob();
+        img.src = URL.createObjectURL(blob);
+        img.onload = () => {
+          img.classList.add('loaded');
+          spin.classList.add('hidden');
+        };
+      }
+    } catch(_) {}
+  }, 1500);
 }
 
+// ── Progress helpers ──────────────────────────────────────────────────────────
+let stepIdx = 0, pollTimer = null;
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = '⚠ ' + msg; el.style.display = 'block';
+}
 function updateProgress(msg, pct) {
   document.getElementById('progress-msg').textContent = msg;
   document.getElementById('progress-fill').style.width = pct + '%';
 }
 
-// Submit
+// ── Form submit ───────────────────────────────────────────────────────────────
 document.getElementById('upload-form').addEventListener('submit', async e => {
   e.preventDefault();
+
   const methods = getSelectedMethods();
   if (!methods.length) { showError('Please select at least one method.'); return; }
+  if (currentMode === 'upload' && !document.getElementById('inp-damaged').files[0]) {
+    showError('Please upload a damaged image, or switch to Generate Synthetic mode.'); return;
+  }
 
-  document.getElementById('error-msg').style.display = 'none';
+  // Sound + ripple fire together
+  playLaunchSound();
+
+  document.getElementById('error-msg').style.display   = 'none';
   document.getElementById('result-section').style.display = 'none';
   document.getElementById('progress-section').style.display = 'block';
   document.getElementById('submit-btn').disabled = true;
-  stepIdx = 0;
-  updateProgress(STEPS[0].msg, STEPS[0].pct);
 
-  const fd = new FormData(e.target);
-  fd.set('num_frames', framesRange.value);
-  // Remove default and add selected methods
-  fd.delete('methods');
+  // Show Panel III immediately and reset
+  document.getElementById('stages-section').style.display = 'block';
+  document.getElementById('live-badge').style.display = '';
+  ['a','b','c'].forEach(s => {
+    const img  = document.getElementById(`img-${s}`);
+    const spin = document.getElementById(`spin-${s}`);
+    img.src = ''; img.classList.remove('loaded');
+    spin.textContent = 'Waiting…'; spin.classList.remove('hidden');
+  });
+
+  stepIdx = (currentMode === 'synth') ? 1 : 0;
+  updateProgress(STEPS[stepIdx].msg, STEPS[stepIdx].pct);
+
+  // FormData
+  const fd = new FormData();
+  fd.append('original',      document.getElementById('inp-original').files[0]);
+  fd.append('use_synthetic', currentMode === 'synth' ? 'true' : 'false');
+  fd.set('num_frames', document.getElementById('frames-range').value);
   methods.forEach(m => fd.append('methods', m));
+
+  if (currentMode === 'upload') {
+    fd.append('damaged', document.getElementById('inp-damaged').files[0]);
+  } else {
+    fd.append('varnish',    document.getElementById('sl-varnish').value);
+    fd.append('lighting',   document.getElementById('sl-lighting').value);
+    fd.append('tilt',       document.getElementById('sl-tilt').value);
+    fd.append('num_cracks', document.getElementById('sl-cracks').value);
+  }
 
   let jobId;
   try {
-    const resp = await fetch('/process', { method: 'POST', body: fd });
+    const resp = await fetch('/process', { method:'POST', body:fd });
     const data = await resp.json();
     if (data.error) { showError(data.error); document.getElementById('submit-btn').disabled = false; return; }
     jobId = data.job_id;
-    currentJobId = jobId;
-  } catch (err) {
+  } catch(err) {
     showError('Submit failed: ' + err.message);
-    document.getElementById('submit-btn').disabled = false;
-    return;
+    document.getElementById('submit-btn').disabled = false; return;
   }
 
+  // Start polling all 3 stage images immediately (each polls independently)
+  pollStage(jobId, 'a');
+  pollStage(jobId, 'b');
+  pollStage(jobId, 'c');
+
+  // Poll job status
   if (pollTimer) clearInterval(pollTimer);
   pollTimer = setInterval(async () => {
     try {
       const r = await fetch('/status/' + jobId);
       const s = await r.json();
-
-      // Advance progress indicator
-      if (stepIdx < STEPS.length - 1) {
-        stepIdx++;
-        updateProgress(STEPS[stepIdx].msg, STEPS[stepIdx].pct);
-      }
+      if (stepIdx < STEPS.length - 1) { stepIdx++; updateProgress(STEPS[stepIdx].msg, STEPS[stepIdx].pct); }
 
       if (s.status === 'done') {
         clearInterval(pollTimer);
         updateProgress('Complete!', 100);
-        setTimeout(() => showResults(jobId, s.videos), 400);
+        document.getElementById('live-badge').style.display = 'none';
+        setTimeout(() => showResults(jobId, s.videos), 500);
         document.getElementById('submit-btn').disabled = false;
       } else if (s.status === 'error') {
         clearInterval(pollTimer);
         document.getElementById('progress-section').style.display = 'none';
+        document.getElementById('live-badge').style.display = 'none';
         showError(s.error || 'Pipeline failed.');
         document.getElementById('submit-btn').disabled = false;
       }
-    } catch {}
+    } catch(_) {}
   }, 2800);
 });
 
-// Show results with tabs
+// ── Show results ──────────────────────────────────────────────────────────────
 function showResults(jobId, methods) {
   document.getElementById('progress-section').style.display = 'none';
   const tabsEl = document.getElementById('result-tabs');
   tabsEl.innerHTML = '';
-
   methods.forEach((method, i) => {
     const btn = document.createElement('button');
     btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
     btn.textContent = METHOD_LABELS[method] || method;
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      loadVideo(jobId, method);
+      btn.classList.add('active'); loadVideo(jobId, method);
     });
     tabsEl.appendChild(btn);
   });
-
   document.getElementById('result-section').style.display = 'block';
   loadVideo(jobId, methods[0]);
-  document.getElementById('result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('result-section').scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
 function loadVideo(jobId, method) {
-  const video = document.getElementById('result-video');
+  const video   = document.getElementById('result-video');
   const caption = document.getElementById('video-caption');
-  const link = document.getElementById('download-link');
-
-  const url = `/video/${jobId}/${method}`;
-  // Force reload
-  video.pause();
-  video.removeAttribute('src');
-  video.load();
+  const link    = document.getElementById('download-link');
+  const url     = `/video/${jobId}/${method}`;
+  video.pause(); video.removeAttribute('src'); video.load();
   video.src = url + '?t=' + Date.now();
-  video.load();
-  video.play().catch(() => {});
-
+  video.load(); video.play().catch(() => {});
   caption.textContent = METHOD_DESC[method] || method;
-  link.href = url;
-  link.download = `${method}_transition.mp4`;
+  link.href = url; link.download = `${method}_transition.mp4`;
 }
 </script>
 </body>
