@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vision Based Temporal Monitoring of Art</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --ink: #1a1208;
+    --sepia: #8b6914;
+    --rust: #c0441a;
+    --gold: #d4a017;
+    --faded: #b8a88a;
+    --paper: #ede8dc;
+    --dark-paper: #2a2218;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Courier Prime', monospace;
+    min-height: 100vh;
+  }
+  header {
+    border-bottom: 3px double var(--ink);
+    padding: 1.5rem 2.5rem;
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5rem;
+  }
+  .logo-mark {
+    width: 50px; height: 50px;
+    border: 3px solid var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem; font-weight: 900; color: var(--rust);
+    flex-shrink: 0;
+  }
+  .header-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; font-weight: 900; line-height: 1;
+  }
+  .header-text p { color: var(--faded); font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; margin-top: 0.3rem; }
+  main { max-width: 1000px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+  /* Upload */
+  .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+  .upload-card { background: var(--paper); border: 2px solid var(--ink); }
+  .card-header {
+    background: var(--ink); color: var(--cream);
+    padding: 0.5rem 1rem; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase;
+  }
+  .drop-zone {
+    min-height: 200px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    cursor: pointer; padding: 1.5rem; position: relative; transition: background 0.2s;
+  }
+  .drop-zone:hover { background: #e4ddd0; }
+  .drop-zone.dragover { background: #d8d0c0; }
+  .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .drop-icon { font-size: 2.5rem; color: var(--faded); margin-bottom: 0.6rem; }
+  .drop-text { font-size: 0.75rem; color: var(--sepia); text-align: center; }
+  .drop-text strong { display: block; font-size: 0.85rem; color: var(--ink); margin-bottom: 0.2rem; }
+  .preview-img { width: 100%; height: 200px; object-fit: contain; display: none; background: #1a1208; padding: 0.4rem; }
+
+  /* Settings */
+  .settings-box {
+    background: var(--paper); border: 2px solid var(--ink);
+    padding: 1.2rem 1.5rem; margin-bottom: 1.5rem;
+    display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;
+  }
+  .setting-group { display: flex; align-items: center; gap: 0.6rem; }
+  .setting-group label { font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--sepia); }
+  input[type="range"] { -webkit-appearance: none; width: 120px; height: 2px; background: var(--faded); outline: none; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 13px; height: 13px; background: var(--rust); border: 2px solid var(--ink); cursor: pointer; }
+  .range-val { font-size: 1.1rem; font-weight: 700; color: var(--rust); width: 2ch; }
+
+  /* Method toggles */
+  .methods-box {
+    background: var(--paper); border: 2px solid var(--ink);
+    padding: 1.2rem 1.5rem; margin-bottom: 1.5rem;
+  }
+  .methods-label {
+    font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--sepia); margin-bottom: 0.9rem;
+  }
+  .method-buttons { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .method-btn {
+    padding: 0.55rem 1.2rem;
+    border: 2px solid var(--ink);
+    background: transparent;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.15s; color: var(--ink);
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .method-btn .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--faded); transition: background 0.15s; flex-shrink: 0;
+  }
+  .method-btn.selected { background: var(--ink); color: var(--cream); }
+  .method-btn.selected .dot { background: var(--gold); }
+  .method-btn:hover:not(.selected) { background: #e0d8c8; }
+
+  /* Submit */
+  .submit-area { text-align: center; margin-bottom: 2.5rem; }
+  .btn-process {
+    background: var(--ink); color: var(--cream);
+    border: 2px solid var(--ink); padding: 0.9rem 3rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.78rem; letter-spacing: 0.25em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn-process:hover { background: var(--rust); border-color: var(--rust); }
+  .btn-process:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* Progress */
+  #progress-section { display: none; margin-bottom: 2rem; }
+  .progress-card {
+    background: var(--dark-paper); border: 2px solid var(--ink);
+    padding: 2rem; color: var(--cream); text-align: center;
+  }
+  .progress-label { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
+  .progress-message { font-size: 0.85rem; color: var(--faded); margin-bottom: 1rem; }
+  .progress-bar-track { width: 100%; height: 3px; background: #3a3228; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: var(--gold); width: 5%; transition: width 0.6s; animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  /* Results */
+  #result-section { display: none; }
+  .result-tabs { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 2px solid var(--ink); margin-bottom: 0; }
+  .tab-btn {
+    padding: 0.6rem 1.3rem;
+    border: 2px solid var(--ink); border-bottom: none;
+    background: var(--paper);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+    cursor: pointer; color: var(--sepia); margin-right: -2px; transition: all 0.15s;
+  }
+  .tab-btn.active { background: var(--ink); color: var(--cream); }
+  .tab-btn:hover:not(.active) { background: #e0d8c8; }
+
+  .video-panel { background: #0f0d09; border: 2px solid var(--ink); border-top: none; padding: 1.5rem; text-align: center; }
+  video { max-width: 100%; max-height: 500px; display: block; margin: 0 auto; background: #000; }
+  .video-caption { margin-top: 0.8rem; font-size: 0.68rem; color: var(--faded); letter-spacing: 0.12em; text-transform: uppercase; }
+  .download-btn {
+    display: inline-block; margin-top: 1rem;
+    padding: 0.5rem 1.8rem; background: transparent;
+    border: 1px solid var(--faded); color: var(--faded);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+    text-decoration: none; cursor: pointer; transition: all 0.15s;
+  }
+  .download-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  .error-msg {
+    background: #3a1010; border: 2px solid var(--rust);
+    color: #ffb0a0; padding: 1rem 1.5rem;
+    font-size: 0.82rem; display: none; margin-bottom: 1.5rem;
+    white-space: pre-wrap; word-break: break-word;
+  }
+
+  footer {
+    border-top: 3px double var(--ink); padding: 1.2rem 2.5rem;
+    display: flex; justify-content: space-between;
+    font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--faded);
+  }
+
+  @media (max-width: 600px) {
+    .upload-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">R</div>
+  <div class="header-text">
+    <h1>Restoration Lab</h1>
+    <p>Adaptive Artwork Damage Analysis &amp; Interpolation</p>
+  </div>
+</header>
+
+<main>
+  <form id="upload-form">
+
+    <!-- Images -->
+    <div class="upload-grid">
+      <div class="upload-card">
+        <div class="card-header">I — Original Artwork</div>
+        <div class="drop-zone" id="dz-original">
+          <input type="file" name="original" id="inp-original" accept="image/*" required>
+          <div class="drop-icon">🖼</div>
+          <div class="drop-text"><strong>Original / Reference</strong>Click or drop image here</div>
+          <img class="preview-img" id="prev-original" alt="">
+        </div>
+      </div>
+      <div class="upload-card">
+        <div class="card-header">II — Damaged Artwork</div>
+        <div class="drop-zone" id="dz-damaged">
+          <input type="file" name="damaged" id="inp-damaged" accept="image/*" required>
+          <div class="drop-icon">🏚</div>
+          <div class="drop-text"><strong>Damaged / Degraded</strong>Click or drop image here</div>
+          <img class="preview-img" id="prev-damaged" alt="">
+        </div>
+      </div>
+    </div>
+
+    <!-- Frames setting -->
+    <div class="settings-box">
+      <div class="setting-group">
+        <label>Transition Frames</label>
+        <input type="range" id="frames-range" min="4" max="20" value="10">
+        <span class="range-val" id="frames-val">10</span>
+      </div>
+      <div style="font-size:0.68rem;color:var(--faded);letter-spacing:0.08em;">More frames = smoother video, longer processing</div>
+    </div>
+
+    <!-- Method selection -->
+    <div class="methods-box">
+      <div class="methods-label">Select interpolation methods to generate</div>
+      <div class="method-buttons">
+        <button type="button" class="method-btn selected" data-method="adaptive">
+          <span class="dot"></span> Adaptive (full pipeline)
+        </button>
+        <button type="button" class="method-btn" data-method="linear">
+          <span class="dot"></span> Linear Blend
+        </button>
+        <button type="button" class="method-btn" data-method="optical_flow">
+          <span class="dot"></span> Optical Flow
+        </button>
+        <button type="button" class="method-btn" data-method="laplacian">
+          <span class="dot"></span> Laplacian Pyramid
+        </button>
+        <button type="button" class="method-btn" data-method="inpainting">
+          <span class="dot"></span> Inpainting
+        </button>
+      </div>
+    </div>
+
+    <div class="submit-area">
+      <button class="btn-process" type="submit" id="submit-btn">✦ &nbsp; Generate Videos &nbsp; ✦</button>
+    </div>
+  </form>
+
+  <div class="error-msg" id="error-msg"></div>
+
+  <!-- Progress -->
+  <div id="progress-section">
+    <div class="progress-card">
+      <div class="progress-label">Processing Pipeline</div>
+      <div class="progress-message" id="progress-msg">Initialising…</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- Results with tabs per method -->
+  <div id="result-section">
+    <div class="result-tabs" id="result-tabs"></div>
+    <div class="video-panel">
+      <video id="result-video" controls autoplay loop muted playsinline></video>
+      <div class="video-caption" id="video-caption"></div>
+      <a id="download-link" href="#" class="download-btn" download>↓ &nbsp; Download Video</a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <span>Restoration Lab</span>
+  <span>Per-pixel adaptive damage interpolation</span>
+</footer>
+
+<script>
+const METHOD_LABELS = {
+  adaptive:     'Adaptive',
+  linear:       'Linear Blend',
+  optical_flow: 'Optical Flow',
+  laplacian:    'Laplacian',
+  inpainting:   'Inpainting'
+};
+
+const METHOD_DESC = {
+  adaptive:     'Per-pixel routing: linear · flow · laplacian · inpainting combined',
+  linear:       'Simple alpha blending across all pixels',
+  optical_flow: 'Motion-compensated warp using Farneback optical flow',
+  laplacian:    'Frequency-band blending via Laplacian pyramid',
+  inpainting:   'Progressive missing-region inpainting with substrate blending'
+};
+
+// Image previews
+function setupPreview(inputId, previewId, dzId) {
+  const input = document.getElementById(inputId);
+  const preview = document.getElementById(previewId);
+  const dz = document.getElementById(dzId);
+  const onChange = () => {
+    if (!input.files[0]) return;
+    preview.src = URL.createObjectURL(input.files[0]);
+    preview.style.display = 'block';
+    dz.querySelector('.drop-icon').style.display = 'none';
+    dz.querySelector('.drop-text').style.display = 'none';
+  };
+  input.addEventListener('change', onChange);
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('dragover');
+    if (e.dataTransfer.files.length) { input.files = e.dataTransfer.files; onChange(); }
+  });
+}
+setupPreview('inp-original', 'prev-original', 'dz-original');
+setupPreview('inp-damaged',  'prev-damaged',  'dz-damaged');
+
+// Frames slider
+const framesRange = document.getElementById('frames-range');
+const framesVal   = document.getElementById('frames-val');
+framesRange.addEventListener('input', () => { framesVal.textContent = framesRange.value; });
+
+// Method toggle buttons
+document.querySelectorAll('.method-btn').forEach(btn => {
+  btn.addEventListener('click', () => btn.classList.toggle('selected'));
+});
+
+function getSelectedMethods() {
+  return [...document.querySelectorAll('.method-btn.selected')].map(b => b.dataset.method);
+}
+
+// Progress steps (cycle through while waiting)
+const STEPS = [
+  { msg: 'Loading images…',                pct: 10 },
+  { msg: 'Aligning images…',               pct: 25 },
+  { msg: 'Analysing damage signals…',      pct: 40 },
+  { msg: 'Computing issue maps…',          pct: 55 },
+  { msg: 'Generating transition frames…',  pct: 70 },
+  { msg: 'Encoding videos…',               pct: 88 },
+];
+let stepIdx = 0, pollTimer = null, currentJobId = null;
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = '⚠ ' + msg;
+  el.style.display = 'block';
+}
+
+function updateProgress(msg, pct) {
+  document.getElementById('progress-msg').textContent = msg;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+// Submit
+document.getElementById('upload-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const methods = getSelectedMethods();
+  if (!methods.length) { showError('Please select at least one method.'); return; }
+
+  document.getElementById('error-msg').style.display = 'none';
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('progress-section').style.display = 'block';
+  document.getElementById('submit-btn').disabled = true;
+  stepIdx = 0;
+  updateProgress(STEPS[0].msg, STEPS[0].pct);
+
+  const fd = new FormData(e.target);
+  fd.set('num_frames', framesRange.value);
+  // Remove default and add selected methods
+  fd.delete('methods');
+  methods.forEach(m => fd.append('methods', m));
+
+  let jobId;
+  try {
+    const resp = await fetch('/process', { method: 'POST', body: fd });
+    const data = await resp.json();
+    if (data.error) { showError(data.error); document.getElementById('submit-btn').disabled = false; return; }
+    jobId = data.job_id;
+    currentJobId = jobId;
+  } catch (err) {
+    showError('Submit failed: ' + err.message);
+    document.getElementById('submit-btn').disabled = false;
+    return;
+  }
+
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(async () => {
+    try {
+      const r = await fetch('/status/' + jobId);
+      const s = await r.json();
+
+      // Advance progress indicator
+      if (stepIdx < STEPS.length - 1) {
+        stepIdx++;
+        updateProgress(STEPS[stepIdx].msg, STEPS[stepIdx].pct);
+      }
+
+      if (s.status === 'done') {
+        clearInterval(pollTimer);
+        updateProgress('Complete!', 100);
+        setTimeout(() => showResults(jobId, s.videos), 400);
+        document.getElementById('submit-btn').disabled = false;
+      } else if (s.status === 'error') {
+        clearInterval(pollTimer);
+        document.getElementById('progress-section').style.display = 'none';
+        showError(s.error || 'Pipeline failed.');
+        document.getElementById('submit-btn').disabled = false;
+      }
+    } catch {}
+  }, 2800);
+});
+
+// Show results with tabs
+function showResults(jobId, methods) {
+  document.getElementById('progress-section').style.display = 'none';
+  const tabsEl = document.getElementById('result-tabs');
+  tabsEl.innerHTML = '';
+
+  methods.forEach((method, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = METHOD_LABELS[method] || method;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      loadVideo(jobId, method);
+    });
+    tabsEl.appendChild(btn);
+  });
+
+  document.getElementById('result-section').style.display = 'block';
+  loadVideo(jobId, methods[0]);
+  document.getElementById('result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function loadVideo(jobId, method) {
+  const video = document.getElementById('result-video');
+  const caption = document.getElementById('video-caption');
+  const link = document.getElementById('download-link');
+
+  const url = `/video/${jobId}/${method}`;
+  // Force reload
+  video.pause();
+  video.removeAttribute('src');
+  video.load();
+  video.src = url + '?t=' + Date.now();
+  video.load();
+  video.play().catch(() => {});
+
+  caption.textContent = METHOD_DESC[method] || method;
+  link.href = url;
+  link.download = `${method}_transition.mp4`;
+}
+</script>
+</body>
+</html>
