@@ -144,6 +144,50 @@ def homogenize_damaged(base_bgr, damaged_bgr):
         np.clip(matched_rgb, 0, 255).astype(np.uint8), cv2.COLOR_RGB2BGR
     )
 
+def compute_damage_heatmap(base_bgr, damaged_final_bgr):
+    """
+    SSIM-based damage detection.
+    Returns (heatmap_bgr, binary_mask_bgr, overlay_bgr) — all BGR, same size as base.
+    """
+    from skimage.metrics import structural_similarity as ssim
+
+    # Work in grayscale for SSIM
+    b_gray = cv2.cvtColor(base_bgr,          cv2.COLOR_BGR2GRAY)
+    d_gray = cv2.cvtColor(damaged_final_bgr,  cv2.COLOR_BGR2GRAY)
+
+    # SSIM difference map  (1 - ssim_val = dissimilarity)
+    _, s_map = ssim(b_gray, d_gray, full=True, win_size=7)
+    s_u8     = ((1.0 - s_map) * 255).astype(np.uint8)
+    s_denoised = cv2.medianBlur(s_u8, 5)
+
+    # Triangle threshold → binary mask
+    _, s_binary = cv2.threshold(s_denoised, 0, 255,
+                                cv2.THRESH_BINARY + cv2.THRESH_TRIANGLE)
+    kernel  = np.ones((5, 5), np.uint8)
+    s_clean = cv2.morphologyEx(s_binary, cv2.MORPH_OPEN, kernel)
+
+    # ── Heatmap: red = high damage, yellow = moderate ─────────────────────
+    s_norm    = cv2.normalize(s_denoised, None, 0, 255, cv2.NORM_MINMAX)
+    heatmap   = cv2.applyColorMap(s_norm, cv2.COLORMAP_JET)
+    # Suppress low-signal pixels (keep only where mask fires)
+    mask3 = cv2.cvtColor(s_clean, cv2.COLOR_GRAY2BGR).astype(bool)
+
+    # ── Overlay: blend heatmap onto original only in damaged regions ───────
+    alpha = 0.6
+    overlay = base_bgr.copy().astype(np.float32)
+    idx = s_clean > 0
+    overlay[idx] = (
+        (1 - alpha) * base_bgr[idx].astype(np.float32)
+        + alpha      * heatmap[idx].astype(np.float32)
+    )
+    overlay = np.clip(overlay, 0, 255).astype(np.uint8)
+
+    # Binary mask visualised in red-on-dark for clarity
+    mask_vis = np.zeros_like(base_bgr)
+    mask_vis[idx] = (0, 0, 220)          # red in BGR
+
+    return mask_vis, overlay
+
 
 # Main pipeline job
 def run_pipeline_job(job_id, orig_path, damaged_path, num_frames, methods):
@@ -210,8 +254,17 @@ def run_pipeline_job(job_id, orig_path, damaged_path, num_frames, methods):
         cv2.imwrite(stage_c_path, damaged_final)
         jobs[job_id]['stage_c'] = stage_c_path
 
-        # Signal that stages are ready so the UI can show them
-        jobs[job_id]['stages_ready'] = True
+        
+        # ── 4b. Damage mask + overlay ─────────────────────────────────────
+        jobs[job_id]['progress'] = 'Computing damage heatmap...'
+        mask_bgr, damage_overlay_bgr = compute_damage_heatmap(base_roi, damaged_final)
+        stage_mask_path    = os.path.join(out_dir, 'stage_mask.jpg')
+        stage_overlay_path = os.path.join(out_dir, 'stage_overlay.jpg')
+        cv2.imwrite(stage_mask_path,    mask_bgr)
+        cv2.imwrite(stage_overlay_path, damage_overlay_bgr)
+        jobs[job_id]['stage_mask']    = stage_mask_path
+        jobs[job_id]['stage_overlay'] = stage_overlay_path
+        jobs[job_id]['stages_ready']  = True
 
         # ── 5. Signals + routing ──────────────────────────────────────────
         jobs[job_id]['progress'] = 'Analysing damage signals...'
@@ -325,6 +378,8 @@ def process():
         'stage_a':       None,
         'stage_b':       None,
         'stage_c':       None,
+        'stage_mask':     None,  
+        'stage_overlay':  None,  
     }
 
     t = threading.Thread(
@@ -361,6 +416,18 @@ def stage_image(job_id, stage):
     path = job.get(key)
     if not path or not os.path.exists(path):
         return jsonify({'error': 'Stage not ready'}), 404
+    return send_file(path, mimetype='image/jpeg')
+
+@app.route('/heatmap/<job_id>/<panel>')
+def heatmap_image(job_id, panel):
+    """panel = mask | overlay"""
+    job = jobs.get(job_id)
+    if not job:
+        return jsonify({'error': 'Not found'}), 404
+    key  = f'stage_{panel}'
+    path = job.get(key)
+    if not path or not os.path.exists(path):
+        return jsonify({'error': 'Not ready'}), 404
     return send_file(path, mimetype='image/jpeg')
 
 

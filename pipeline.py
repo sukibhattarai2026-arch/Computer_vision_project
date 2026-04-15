@@ -1,45 +1,4 @@
 #!/usr/bin/env python3
-"""
-Adaptive Artwork Damage Analysis and Interpolation Pipeline
-===========================================================
-
-Goal
-----
-Detect what kind of degradation is present at each pixel/region and apply
-an appropriate interpolation / restoration transition strategy:
-
-- photometric change      -> linear / color-domain blending
-- geometric displacement  -> optical-flow-guided warping
-- texture mismatch        -> Laplacian pyramid blending
-- missing material / hole -> inpainting + substrate-aware blending
-
-This script is designed to be more robust and easier to defend in a project
-submission than an over-specialized simulation-only pipeline.
-
-Key design choices
-------------------
-1. Deterministic outputs: all stochastic components use a fixed seed.
-2. Monotonic progression: masks grow with time, so intermediate frames do not
-   stagnate or repeat.
-3. Exact endpoint: the final frame is the true damaged image.
-4. Per-pixel routing: the method is chosen by issue maps, not by one global
-   interpolation mode.
-5. Diagnostics: saves signal maps, issue maps, routing map, confidence maps,
-   contact sheets, and optional evaluation.
-
-Usage
------
-python artwork_restoration_project.py \
-    --original original.jpg \
-    --damaged damaged.jpg \
-    --num_frames 7 \
-    --output_dir results
-
-Optional:
-    --ground_truth midpoint.jpg
-    --no_align
-    --seed 7
-"""
 
 from __future__ import annotations
 

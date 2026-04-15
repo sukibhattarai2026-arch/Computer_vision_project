@@ -218,7 +218,7 @@
 <body>
 
 <header>
-  <div class="logo-mark">R</div>
+  <div class="logo-mark">A</div>
   <div class="header-text">
     <h1>Art Work Monitoring</h1>
 
@@ -339,7 +339,7 @@
 
       <div class="stage-cell">
         <div class="stage-label">
-          A — Raw Input
+          A — Raw Version of Degraded image
           <span class="stage-sublabel">Before any processing</span>
         </div>
         <div class="stage-img-wrap">
@@ -362,7 +362,7 @@
       <div class="stage-cell">
         <div class="stage-label">
           C — Intensity Normalised
-          <span class="stage-sublabel">Histogram matched to original</span>
+          <span class="stage-sublabel">Histogram matched to original (baseline)</span>
         </div>
         <div class="stage-img-wrap">
           <img id="img-c" alt="Stage C — Normalised">
@@ -372,6 +372,40 @@
 
     </div>
   </div>
+
+  <!-- Panel IV: Damage Detection -->
+<div id="damage-section" style="display:none; margin-bottom:2rem;">
+  <div class="stages-header">
+    IV — Damage Detection
+    <span class="live-badge" id="damage-badge">● COMPUTING</span>
+  </div>
+  <div class="stages-grid" style="grid-template-columns: 1fr 1fr;">
+
+    <div class="stage-cell">
+      <div class="stage-label">
+        Binary Mask
+        <span class="stage-sublabel">Detected damage regions</span>
+      </div>
+      <div class="stage-img-wrap">
+        <img id="img-mask" alt="Mask">
+        <div class="stage-spinner" id="spin-mask">Waiting…</div>
+      </div>
+    </div>
+
+    <div class="stage-cell" style="border-right:none;">
+      <div class="stage-label">
+        Damage Overlay
+        <span class="stage-sublabel">Heatmap blended onto original (baseline)</span>
+      </div>
+      <div class="stage-img-wrap">
+        <img id="img-overlay" alt="Overlay">
+        <div class="stage-spinner" id="spin-overlay">Waiting…</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 
   <!-- Results -->
   <div id="result-section">
@@ -549,6 +583,35 @@ function pollStage(jobId, stage) {
     } catch(_) {}
   }, 1500);
 }
+function pollHeatmap(jobId, panel) {
+  const img  = document.getElementById(`img-${panel}`);
+  const spin = document.getElementById(`spin-${panel}`);
+  spin.textContent = 'Computing…';
+  let tries = 0;
+  const iv = setInterval(async () => {
+    tries++;
+    if (tries > 120) { clearInterval(iv); return; }
+    try {
+      const r = await fetch(`/heatmap/${jobId}/${panel}`);
+      if (r.ok) {
+        clearInterval(iv);
+        const blob = await r.blob();
+        img.src = URL.createObjectURL(blob);
+        img.onload = () => {
+          img.classList.add('loaded');
+          spin.classList.add('hidden');
+          
+          // Only check for mask and overlay
+          if (['mask', 'overlay'].every(p =>
+            document.getElementById(`img-${p}`).classList.contains('loaded')
+          )) {
+            document.getElementById('damage-badge').style.display = 'none';
+          }
+        };
+      }
+    } catch(_) {}
+  }, 1800);
+}
 
 // ── Progress helpers ──────────────────────────────────────────────────────────
 let stepIdx = 0, pollTimer = null;
@@ -623,6 +686,18 @@ document.getElementById('upload-form').addEventListener('submit', async e => {
   pollStage(jobId, 'a');
   pollStage(jobId, 'b');
   pollStage(jobId, 'c');
+
+  // Show Panel IV and start polling heatmap images
+  document.getElementById('damage-section').style.display = 'block';
+  document.getElementById('damage-badge').style.display = '';
+  ['mask','overlay'].forEach(p => {
+    const img  = document.getElementById(`img-${p}`);
+    const spin = document.getElementById(`spin-${p}`);
+    img.src = ''; img.classList.remove('loaded');
+    spin.textContent = 'Waiting…'; spin.classList.remove('hidden');
+  });
+  pollHeatmap(jobId, 'mask');
+  pollHeatmap(jobId, 'overlay');
 
   // Poll job status
   if (pollTimer) clearInterval(pollTimer);

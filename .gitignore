@@ -1,1 +1,3 @@
 MY_VENV/
+.venv
+__pycache__/
