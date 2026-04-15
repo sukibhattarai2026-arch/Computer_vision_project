@@ -105,9 +105,13 @@ Images to upload can be downloaded from the git repo itself under the folder nam
 
 
 ## Application Screenshots
-
+### Image 1
 ![](images/app-screenshots/screenshot-1.png)
 
+## Image 2
+![](images/app-screenshots/screenshot-3.png)
+
+
+## Image 3: Using synthetically generated version as degraded artwork
 ![](images/app-screenshots/screenshot-2.png)
 
-![](images/app-screenshots/screenshot-3.png)

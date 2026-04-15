@@ -205,10 +205,10 @@ def run_pipeline_job(job_id, orig_path, damaged_path, num_frames, methods):
 
         out_dir = jobs[job_id]['out_dir']
 
-        # ── 1. Load original ──────────────────────────────────────────────
+        # ── Load original ──────────────────────────────────────────────
         orig = load_image(orig_path)
 
-        # ── 2. Get second image (upload or synthetic) ─────────────────────
+        # ── Get second image (upload or synthetic) ─────────────────────
         if jobs[job_id].get('use_synthetic'):
             jobs[job_id]['progress'] = 'Generating synthetic damage...'
             p = jobs[job_id].get('synth_params', {})
@@ -227,7 +227,7 @@ def run_pipeline_job(job_id, orig_path, damaged_path, num_frames, methods):
         cv2.imwrite(stage_a_path, damaged_raw)
         jobs[job_id]['stage_a'] = stage_a_path
 
-        # ── 3. ROI + Alignment ────────────────────────────────────────────
+        # ── ROI + Alignment ────────────────────────────────────────────
         jobs[job_id]['progress'] = 'Aligning images...'
         base_roi, _ = extract_artwork_roi(orig, is_baseline=True)
 
@@ -245,7 +245,7 @@ def run_pipeline_job(job_id, orig_path, damaged_path, num_frames, methods):
         cv2.imwrite(stage_b_path, aligned)
         jobs[job_id]['stage_b'] = stage_b_path
 
-        # ── 4. Intensity normalisation ────────────────────────────────────
+        # ── Intensity normalisation ────────────────────────────────────
         jobs[job_id]['progress'] = 'Normalising intensities...'
         damaged_final = homogenize_damaged(base_roi, aligned)
 
@@ -253,9 +253,8 @@ def run_pipeline_job(job_id, orig_path, damaged_path, num_frames, methods):
         stage_c_path = os.path.join(out_dir, 'stage_c_normalised.jpg')
         cv2.imwrite(stage_c_path, damaged_final)
         jobs[job_id]['stage_c'] = stage_c_path
-
         
-        # ── 4b. Damage mask + overlay ─────────────────────────────────────
+        # ── Damage mask + overlay ─────────────────────────────────────
         jobs[job_id]['progress'] = 'Computing damage heatmap...'
         mask_bgr, damage_overlay_bgr = compute_damage_heatmap(base_roi, damaged_final)
         stage_mask_path    = os.path.join(out_dir, 'stage_mask.jpg')
@@ -266,7 +265,7 @@ def run_pipeline_job(job_id, orig_path, damaged_path, num_frames, methods):
         jobs[job_id]['stage_overlay'] = stage_overlay_path
         jobs[job_id]['stages_ready']  = True
 
-        # ── 5. Signals + routing ──────────────────────────────────────────
+        # ── Signals + routing ──────────────────────────────────────────
         jobs[job_id]['progress'] = 'Analysing damage signals...'
         sig     = compute_signals(base_roi, damaged_final)
         issues  = compute_issue_maps(sig)
@@ -284,7 +283,7 @@ def run_pipeline_job(job_id, orig_path, damaged_path, num_frames, methods):
 
         videos = {}
 
-        # ── 6. Frame generation ───────────────────────────────────────────
+        # ── Frame generation ───────────────────────────────────────────
         for method in methods:
             jobs[job_id]['progress'] = f'Generating frames: {method}...'
             frames = [base_roi]

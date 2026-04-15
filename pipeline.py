@@ -355,28 +355,6 @@ def compute_issue_maps(sig: Signals) -> IssueMaps:
     )
 
 
-
-# def routing_from_issues(issues: IssueMaps) -> RoutingWeights:
-#     # linear = 1.15 * issues.photometric + 0.20 * issues.clean
-#     # flow = 1.10 * issues.geometric + 0.15 * issues.photometric
-#     # laplacian = 1.05 * issues.texture + 0.20 * issues.photometric
-#     # inpaint = 1.20 * issues.missing + 0.10 * issues.texture
-#     linear = 0.95 * issues.photometric + 0.15 * issues.clean
-#     flow = 0.95 * issues.geometric + 0.10 * issues.photometric
-#     laplacian = 0.90 * issues.texture + 0.10 * issues.photometric
-#     inpaint = 1.80 * issues.missing + 0.35 * issues.texture + 0.20 * issues.photometric
-
-
-
-#     stack = np.stack([linear, flow, laplacian, inpaint], axis=-1).astype(np.float32)
-#     exp = np.exp(np.clip(stack / 0.25, -40, 40))
-#     soft = exp / (exp.sum(axis=-1, keepdims=True) + 1e-8)
-#     return RoutingWeights(
-#         linear=soft[..., 0].astype(np.float32),
-#         flow=soft[..., 1].astype(np.float32),
-#         laplacian=soft[..., 2].astype(np.float32),
-#         inpaint=soft[..., 3].astype(np.float32),
-#     )
 def routing_from_issues(issues: IssueMaps) -> RoutingWeights:
     linear = 0.80 * issues.photometric + 0.10 * issues.clean
     flow = 0.80 * issues.geometric + 0.08 * issues.photometric
@@ -570,57 +548,11 @@ def make_progressive_missing_mask(base_missing: np.ndarray, alpha: float, rng: n
     return mask
 
 
-# def make_progressive_missing_mask(base_missing: np.ndarray, alpha: float, rng: np.random.Generator) -> np.ndarray:
-#     base = cv2.GaussianBlur(base_missing.astype(np.float32), (9, 9), 0)
-#     base = norm01(base)
-
-#     noise_std = 0.03 * (1.0 - alpha)
-#     noise = rng.normal(0.0, noise_std, size=base.shape).astype(np.float32)
-
-#     score = norm01(base + noise)
-
-#     # broader mask that still grows with time
-#     thresh = 0.78 - 0.38 * alpha
-#     mask = (score >= thresh).astype(np.uint8) * 255
-
-#     k = max(5, int(5 + alpha * 11)) | 1
-#     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))
-
-#     mask = cv2.dilate(mask, kernel, iterations=1)
-#     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
-#     mask = cv2.GaussianBlur(mask, (k, k), 0)
-
-#     return mask
-
 def residual_damage_map(orig: np.ndarray, damaged: np.ndarray) -> np.ndarray:
     diff = np.mean(np.abs(orig.astype(np.float32) - damaged.astype(np.float32)), axis=2)
     diff = cv2.GaussianBlur(diff, (9, 9), 0)
     return norm01(diff)
 
-
-# def inpaint_progressive(orig: np.ndarray, damaged: np.ndarray, missing_map: np.ndarray,
-#                         alpha: float, rng: np.random.Generator) -> np.ndarray:
-#     mask = make_progressive_missing_mask(missing_map, alpha, rng)
-#     binary = (mask > 20).astype(np.uint8) * 255
-
-#     inpainted = cv2.inpaint(orig, binary, 5, cv2.INPAINT_TELEA)
-
-#     gray_d = cv2.cvtColor(damaged, cv2.COLOR_BGR2GRAY)
-#     bad = (gray_d < 8).astype(np.uint8) * 255
-#     if bad.max() > 0:
-#         damaged_safe = cv2.inpaint(damaged, bad, 3, cv2.INPAINT_TELEA)
-#     else:
-#         damaged_safe = damaged.copy()
-
-#     substrate = cv2.GaussianBlur(damaged_safe, (41, 41), 0)
-
-#     hybrid = to_u8(0.80 * inpainted.astype(np.float32) + 0.20 * substrate.astype(np.float32))
-
-#     aa = (mask.astype(np.float32) / 255.0)[..., None]
-#     # inside = hybrid.astype(np.float32) * (1.0 - alpha) + damaged_safe.astype(np.float32) * alpha
-#     inside = hybrid.astype(np.float32) * (1.0 - 0.65 * alpha) + damaged_safe.astype(np.float32) * (0.65 * alpha)
-#     result = inside * aa + orig.astype(np.float32) * (1.0 - aa)
-#     return to_u8(result)
 
 def inpaint_progressive(orig: np.ndarray, damaged: np.ndarray, missing_map: np.ndarray, alpha: float, rng: np.random.Generator) -> np.ndarray:
     mask = make_progressive_missing_mask(missing_map, alpha, rng)
@@ -640,12 +572,8 @@ def inpaint_progressive(orig: np.ndarray, damaged: np.ndarray, missing_map: np.n
 # Unified adaptive synthesis
 # ---------------------------------------------------------------------
 
-# def temporal_curve(alpha: float) -> float:
-#     return alpha * alpha * (3.0 - 2.0 * alpha)
-
 def temporal_curve(alpha: float) -> float:
     return alpha
-
 
 
 def build_transition_frame(
@@ -662,10 +590,6 @@ def build_transition_frame(
 
     t = temporal_curve(alpha)
     sev = issues.severity
-
-    # linear_alpha = np.clip(t * sev * (0.65 + 0.35 * routing.linear), 0, 1)
-    # flow_alpha = np.clip(t * sev * (0.65 + 0.35 * routing.flow), 0, 1)
-    # lap_alpha = np.clip(t * sev * (0.65 + 0.35 * routing.laplacian), 0, 1)
 
     progress = np.clip(0.10 + 0.90 * t, 0, 1)
 
@@ -695,15 +619,6 @@ def build_transition_frame(
 
     out_inpaint = inpaint_progressive(orig, damaged, damage_map, t, rng)
     
-
-    # wl = routing.linear[..., None]
-    # wf = routing.flow[..., None]
-    # wp = routing.laplacian[..., None]
-    # wi = routing.inpaint[..., None]
-
-    # norm = wl + wf + wp + wi + 1e-8
-    # wl, wf, wp, wi = wl / norm, wf / norm, wp / norm, wi / norm 
-
     wl = routing.linear[..., None]
     wf = routing.flow[..., None]
     wp = routing.laplacian[..., None]
